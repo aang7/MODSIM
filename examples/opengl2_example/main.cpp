@@ -43,8 +43,8 @@ int main(int, char**)
     io.Fonts->AddFontFromFileTTF("../../extra_fonts/fontawesome-webfont.ttf", 18.0f, &config, icon_ranges);
 
 
-    bool show_test_window = true;
-    bool show_another_window = false;
+    bool show_simulacion= false;   
+	int tiempoMax=60, nFilas=1, nServicio=1;
     ImVec4 clear_color = ImColor(114, 144, 154);
 
     // Main loop
@@ -57,32 +57,21 @@ int main(int, char**)
         // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
         {
             static float f = 0.0f;
-            ImGui::Text("Hello, world!");
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-            ImGui::ColorEdit3("clear color", (float*)&clear_color);
-            if (ImGui::Button("Test Window")) show_test_window ^= 1;
-            if (ImGui::Button("Another Window")) show_another_window ^= 1;
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-	    ImGui::Text("%s ejemplo", ICON_FA_SEARCH);
-	    ImGui::Button( ICON_FA_SEARCH " Buscar"  );
-	   
+            ImGui::Text("Simulacion! wowowow");
+            ImGui::SliderInt("Numero de estaciones de servicio",&nServicio,1,10);
+            ImGui::SliderInt("Tiempo Maximo",&tiempoMax,1,480);
+            if (ImGui::Button("Iniciar simulacion")) show_simulacion ^= 1;
+       
         }
 
         // 2. Show another simple window, this time using an explicit Begin/End pair
-        if (show_another_window)
-        {
-            ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-            ImGui::Begin("Another Window", &show_another_window);
-            ImGui::Text("Hello");
-            ImGui::End();
-        }
+        
 
         // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-        if (show_test_window)
+        if (show_simulacion)
         {
             ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-            ImGui::ShowTestWindow(&show_test_window);
+            ImGui::Simulacion(&show_simulacion,tiempoMax,nFilas,nServicio);
         }
 
         // Rendering
