@@ -44,7 +44,7 @@ int main(int, char**)
 
 
     bool show_simulacion= false;   
-	int tiempoMax=60, nFilas=1, nServicio=1;
+	int tiempoMax=100, nFilas=1, nServicio=1;
     ImVec4 clear_color = ImColor(114, 144, 154);
 
     // Main loop
@@ -52,18 +52,18 @@ int main(int, char**)
     {
         glfwPollEvents();
         ImGui_ImplGlfw_NewFrame();
+		if (!show_simulacion) {
+			// 1. Show a simple window
+			// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+			{
+				static float f = 0.0f;
+				ImGui::Text("Simulacion! wowowow");
+				ImGui::SliderInt("Numero de estaciones de servicio", &nServicio, 1, 10);
+				ImGui::SliderInt("Tiempo Maximo", &tiempoMax, 1, 480);
+				if (ImGui::Button("Iniciar simulacion")) show_simulacion ^= 1;
 
-        // 1. Show a simple window
-        // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-        {
-            static float f = 0.0f;
-            ImGui::Text("Simulacion! wowowow");
-            ImGui::SliderInt("Numero de estaciones de servicio",&nServicio,1,10);
-            ImGui::SliderInt("Tiempo Maximo",&tiempoMax,1,480);
-            if (ImGui::Button("Iniciar simulacion")) show_simulacion ^= 1;
-       
-        }
-
+			}
+		}
         // 2. Show another simple window, this time using an explicit Begin/End pair
         
 
