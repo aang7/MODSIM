@@ -66,8 +66,9 @@
 static int generarTiempoLLegada(float P);
 static int generarTiempoLLamada(float A);
 static int seleccionarMenor(int n1, int n2, int n3);
+static int generarTiempoServicio(float A);
 static int generarTipo();
-static int menor = 0, reloj = 0, delta = 0, deltaAnt = 0, TSLL = 0, tipo = 0, TClientes = 0, Tllamadas = 0, cola = 0, llamadasP = 0, llamadasCont = 0, TCELL = 0, CELL = 0;
+static int menor = 0,TET=0,TO=0,atendidos, reloj = 0, delta = 0, deltaAnt = 0, TSLL = 0, tipo = 0, TClientes = 0, Tllamadas = 0, cola = 0, llamadasP = 0, llamadasCont = 0, TCELL = 0, CELL = 0;
 static bool LLA = false, CLA = false;
 static float P = 0.0f;
 //EJEMPLO
@@ -100,6 +101,7 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 		}
 		delta = 10;
 		reloj = reloj + delta;
+		TET = TET + cola * delta;
 		
 		//Pendiente formula tiempo de espera total
 
@@ -124,7 +126,7 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 					{
 						
 						estaciones[i][1] = 1;
-						TS[i][1] = generarTiempoLLamada(1) + delta;
+						TS[i][1] = generarTiempoLLamada(1) ;
 
 						llamadasCont++;
 						printf("atencion: %i\n", i);
@@ -161,7 +163,19 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 			TS[i][0] = TS[i][0] - delta;
 			if (TS[i][0]<=0)
 			{
-
+				if (TS[i][0] == 0) {
+					estaciones[i][0] = 0;
+					atendidos++;
+				}
+				else {
+					TO = TO - TS[i][0];
+					TS[i][0] = 0;
+				}
+				if (cola > 0) {
+					estaciones[i][0] = 0;
+					cola = cola -1;
+					TS[i][0] = generarTiempoServicio(2);
+				}
 			}
 
 		}
@@ -190,6 +204,11 @@ static int generarTiempoLLegada(float P) {
 	return tiempo;
 }
 static int generarTiempoLLamada(float A) {
+	static int tiempo = 0;
+	tiempo = 20;
+	return tiempo;
+}
+static int generarTiempoServicio(float A) {
 	static int tiempo = 0;
 	tiempo = 20;
 	return tiempo;
