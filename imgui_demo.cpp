@@ -65,7 +65,6 @@
 
 #ifndef IMGUI_DISABLE_TEST_WINDOWS
 
-//EJEMPLO
 static int generarTiempoLLegada(float P);
 static int generarTiempoLLamada(float A);
 static int seleccionarMenor(int n1, int n2, int n3);
@@ -74,9 +73,6 @@ static float getRandomNumber();
 static int randomInteger();
 static void geometrica();
 
-static int menor = 0, reloj = 0, delta = 0, deltaAnt = 0, TSLL = 0, tipo = 0, TClientes = 0, Tllamadas = 0, cola = 0, llamadasP = 0, llamadasCont = 0, TCELL = 0, CELL = 0;
-static bool LLA = false, CLA = false;
-static float P = 0.0f;
 enum { MIN = 0, MAX = 1000 };
 
 using namespace std;
@@ -146,15 +142,12 @@ struct ExampleAppLog
 
 
 
-//EJEMPLO
 void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
         	
 
 	static ExampleAppLog log;
 
 	ImGui::Begin("Simulacion", p_open);
-	
-        
 	
 	
 	if(ImGui::Button("Generate times"))
@@ -167,9 +160,6 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 
 
 	 log.Draw("Numbers for time", p_open);
-
-
-	
 
 	ImGui::End();
 }
