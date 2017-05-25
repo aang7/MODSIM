@@ -16,12 +16,15 @@
 #include <math.h>           // sqrtf, powf, cosf, sinf, floorf, ceilf
 #include <stdio.h>          // vsnprintf, sscanf, printf
 #include <stdlib.h>         // NULL, malloc, free, qsort, atoi
-#include <windows.h>
+//#include <windows.h>
 #if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
 #include <stddef.h>         // intptr_t
 #else
 #include <stdint.h>         // intptr_t
 #endif
+
+#include<iostream>
+#include <random>
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
@@ -67,119 +70,107 @@ static int generarTiempoLLegada(float P);
 static int generarTiempoLLamada(float A);
 static int seleccionarMenor(int n1, int n2, int n3);
 static int generarTipo();
+static float getRandomNumber();
+static int randomInteger();
+static void geometrica();
+
 static int menor = 0, reloj = 0, delta = 0, deltaAnt = 0, TSLL = 0, tipo = 0, TClientes = 0, Tllamadas = 0, cola = 0, llamadasP = 0, llamadasCont = 0, TCELL = 0, CELL = 0;
 static bool LLA = false, CLA = false;
 static float P = 0.0f;
+enum { MIN = 0, MAX = 1000 };
+
+using namespace std;
+
+#define LEN 20
+char times[LEN];
+
+struct ExampleAppLog
+{
+    ImGuiTextBuffer     Buf;
+    ImGuiTextFilter     Filter;
+    ImVector<int>       LineOffsets;        // Index to lines offset
+    bool                ScrollToBottom;
+
+    void    Clear()     { Buf.clear(); LineOffsets.clear(); }
+
+    void    AddLog(const char* fmt, ...) IM_PRINTFARGS(2)
+    {
+        int old_size = Buf.size();
+        va_list args;
+        va_start(args, fmt);
+        Buf.appendv(fmt, args);
+        va_end(args);
+        for (int new_size = Buf.size(); old_size < new_size; old_size++)
+            if (Buf[old_size] == '\n')
+                LineOffsets.push_back(old_size);
+        ScrollToBottom = true;
+    }
+
+    void    Draw(const char* title, bool* p_open = NULL)
+    {
+        ImGui::SetNextWindowSize(ImVec2(500,400), ImGuiSetCond_FirstUseEver);
+        ImGui::Begin(title, p_open);
+        if (ImGui::Button("Clear")) Clear();
+        ImGui::SameLine();
+        bool copy = ImGui::Button("Copy");
+        ImGui::SameLine();
+        Filter.Draw("Filter", -100.0f);
+        ImGui::Separator();
+        ImGui::BeginChild("scrolling", ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar);
+        if (copy) ImGui::LogToClipboard();
+
+        if (Filter.IsActive())
+        {
+            const char* buf_begin = Buf.begin();
+            const char* line = buf_begin;
+            for (int line_no = 0; line != NULL; line_no++)
+            {
+                const char* line_end = (line_no < LineOffsets.Size) ? buf_begin + LineOffsets[line_no] : NULL;
+                if (Filter.PassFilter(line, line_end))
+                    ImGui::TextUnformatted(line, line_end);
+                line = line_end && line_end[1] ? line_end + 1 : NULL;
+            }
+        }
+        else
+        {
+            ImGui::TextUnformatted(Buf.begin());
+        }
+
+        if (ScrollToBottom)
+            ImGui::SetScrollHere(1.0f);
+        ScrollToBottom = false;
+        ImGui::EndChild();
+        ImGui::End();
+    }
+};
+
+
+
 //EJEMPLO
-
 void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
-	static int i = 0;
-	static bool atendido = false;
-	static int TLL = generarTiempoLLegada(P);
-	static int estaciones[10][2] = { {0,0} ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } };
-	static int TS[10][2] = { { 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } };
-	ImGui::SetNextWindowSize(ImVec2(550, 300));
-	if (!ImGui::Begin("Simulacion", p_open))
-	{
-		// Early out if the window is collapsed, as an optimization.
-		ImGui::End();
-		return;
-	}
+        	
+
+	static ExampleAppLog log;
+
+	ImGui::Begin("Simulacion", p_open);
+	
+        
 	
 	
+	if(ImGui::Button("Generate times"))
+	  {
+	    geometrica();
+	    log.AddLog("\n\n \tNew Generation\n\n");
+	    for(int i = 0; i < LEN; i++)
+	      log.AddLog("%d\n", times[i]);
+	  }
+
+
+	 log.Draw("Numbers for time", p_open);
+
+
 	
 
-	if (reloj<tiempoMax)
-	{	
-		Sleep(1000);
-		menor = TLL;
-		for (i = 0; i < nServicio; i++) {
-			delta = seleccionarMenor(TS[i][0],TS[i][1],menor);//seleccionar el menor de 3 numeros
-			menor = delta;
-
-		}
-		delta = 10;
-		reloj = reloj + delta;
-		
-		//Pendiente formula tiempo de espera total
-
-		//Revisar el tiempo de llegada
-		TLL = TLL - delta;
-		i = 0;
-		
-		if (TLL == 0) 
-		{
-			tipo = generarTipo();
-			while ((i < nServicio)&&(atendido == false)) 
-			{
-				printf("checar %i\n",i);
-				if (tipo == 0) {
-					TClientes++;
-					cola++;
-					atendido = true;
-				}
-				else {
-					printf("estacion: %i estado: %i\n", i, estaciones[i][1]);
-					if (estaciones[i][1] == 0) 
-					{
-						
-						estaciones[i][1] = 1;
-						TS[i][1] = generarTiempoLLamada(1) + delta;
-
-						llamadasCont++;
-						printf("atencion: %i\n", i);
-						atendido = true;
-						if (estaciones[i][0] == 1) {
-							TS[i][0] = TS[i][0] + TS[i][1];
-							TCELL = TCELL + TS[i][1]; 
-							CELL++;
-						}
-						
-					}
-				}
-				i++;
-			}
-			printf("atendido\n");
-			if (atendido == false) {
-				llamadasP++;
-			}
-			TLL = generarTiempoLLegada(P);//obtener un tiempo de llegada
-			
-		}
-
-		
-		//Revisar el tiempo de servicio de llamada
-		for (i = 0; i < nServicio; i++) {
-			TS[i][1] = TS[i][1] - delta;
-			if (TS[i][1] <= 0) {
-				estaciones[i][1] = 0;
-			}
-		}
-		
-		//Revisar el tiempo de servicio del cliente
-		for (i = 0; i < nServicio; i++) {
-			TS[i][0] = TS[i][0] - delta;
-			if (TS[i][0]<=0)
-			{
-
-			}
-
-		}
-
-		
-		atendido = false;
-		printf("\n");
-	}
-	//Impresion de estado
-	Tllamadas = llamadasCont + llamadasP;
-	ImGui::Text("Reloj: %i", reloj);
-	ImGui::Text("Cola: %i \n", cola);
-	ImGui::Text("Clientes: %i \n", TClientes);
-	ImGui::Text("Llamadas: %i \n", Tllamadas);
-	ImGui::Text("Llamadas Perdidas: %i \n", llamadasP);
-	ImGui::Text("Llamadas Contestadas: %i \n", llamadasCont);
-	//Calculo de promedios
-	//Impresiones
 	ImGui::End();
 }
 
@@ -206,6 +197,65 @@ static int generarTipo() {
 	return tipo;
 }
 
+
+static int randomInteger()
+{
+  std::mt19937 rng;  // only used once to initialise (seed) engine
+  rng.seed(std::random_device()());
+  std::uniform_int_distribution<std::mt19937::result_type> dist(MIN,MAX); // distribution in range [MIN, MAX]
+
+  auto random_integer = dist(rng);
+  
+  return random_integer;
+}
+
+//Metodo Congruencial Lineal
+static float getRandomNumber()
+{
+
+    long int m = 97711 /* 97711 */;
+    int c = 7, a = 7;
+    double nrandom = 0.0f, temp = 0.0f;
+    double uniforme = 0.0f;
+    
+    int random_stop = randomInteger();
+    cout << "rs = " << random_stop << " ";
+
+    for (long int i = 0; i < random_stop; ++i)
+      {
+	nrandom = ((int)(a*temp + c) % m);
+	temp = nrandom;
+      }
+
+    uniforme = nrandom / m;
+
+  return uniforme;
+}
+
+
+static void geometrica(){
+  double p, suma, y = 0;
+  double r;
+  int x;
+
+  p = 0.07203;
+
+  for (int i = 0; i < LEN; ++i)
+    {
+      x = 0;
+      suma = 0;
+      r = getRandomNumber();
+      //cout << "r = " << r << endl;
+
+      while (suma < r) {
+	x++;
+	y = (pow((1-p), x-1))*p;
+	suma += y;
+      }
+      times[i] = x;
+      printf("X = %d\n", x);
+    }
+}
 #else
 
 void ImGui::ShowTestWindow(bool*) {}
