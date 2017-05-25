@@ -68,42 +68,88 @@ static int generarTiempoLLamada(float A);
 static int seleccionarMenor(int n1, int n2, int n3);
 static int generarTiempoServicio(float A);
 static int generarTipo();
-static int menor = 0,TET=0,TO=0,atendidos, reloj = 0, delta = 0, deltaAnt = 0, TSLL = 0, tipo = 0, TClientes = 0, Tllamadas = 0, cola = 0, llamadasP = 0, llamadasCont = 0, TCELL = 0, CELL = 0;
+static int menor = 0,TET=0,TO=0,atendidos, reloj = 0, delta = 0, deltaAnt = 0, TSLL = 0, tipo = 0, TClientes = 0, Tllamadas = 0, cola = 0, llamadasP = 0, llamadasCont = 0, TCELL = 0, CELL = 0,maximo = 0;
 static bool LLA = false, CLA = false;
 static float P = 0.0f;
 //EJEMPLO
 
 void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
+	maximo = tiempoMax;
 	static int i = 0;
-	static bool atendido = false;
+	static bool atendido = false, libre = false;
 	static int TLL = generarTiempoLLegada(P);
 	static int estaciones[10][2] = { {0,0} ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } };
 	static int TS[10][2] = { { 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } ,{ 0,0 } };
-	ImGui::SetNextWindowSize(ImVec2(550, 300));
+	ImGui::SetNextWindowSize(ImVec2(900, 600));
 	if (!ImGui::Begin("Simulacion", p_open))
 	{
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
 		return;
 	}
-	
-	
-	
 
+	//DISEÑO GRAFICO
+	//Impresion de estado
+	Tllamadas = llamadasCont + llamadasP;
+	ImGui::Text("Reloj: %i", reloj);
+	ImGui::ProgressBar((float)reloj / maximo);
+	ImGui::Separator();
+
+	ImGui::Text("Clientes que han llegado al sitema: %i \n", TClientes);
+	ImGui::Text("Llamadas que han llegado al sistema: %i \n", Tllamadas);
+	ImGui::Separator();
+
+	ImGui::Text("Clientes atendidos: %i \n", atendidos);
+	ImGui::Text("Llamadas Perdidas: %i \n", llamadasP);
+	ImGui::Text("Llamadas Contestadas: %i \n", llamadasCont);
+	ImGui::Separator();
+
+	//COLA
+	ImGui::Text("Cola: %i \n", cola); ImGui::SameLine();
+	static int cont = 0;
+	static int espacio = 10;
+	static int lado = 10;
+	static float wrap_width = 50.0f;
+	ImVec2 pos = ImGui::GetCursorScreenPos();
+	for (cont = 0; cont < cola; cont++) {
+		ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(pos.x + wrap_width + espacio, pos.y), ImVec2(pos.x + wrap_width + lado + espacio, pos.y + lado), IM_COL32(255, 0, 255, 255));
+		espacio = espacio + 15;
+	}
+	ImGui::Spacing();
+	espacio = 20;
+	ImGui::Separator();
+	//FIN DISEÑO COLA	
+	static int lado2 = 10;
+	ImVec2 pos2 = ImGui::GetCursorScreenPos();
+	for (i = 0; i < nServicio; i++) {
+		ImGui::Text("Estacion de servicio: %i", i + 1);
+		if (estaciones[i][0]==0) {
+			ImGui::GetWindowDrawList()->AddRect(ImVec2(pos2.x , pos2.y  + espacio), ImVec2(pos2.x + 30.0f, pos.y + 50.0f + espacio), IM_COL32(255, 255, 0, 255));
+		}
+		else {
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(pos2.x  , pos2.y  + espacio ), ImVec2(pos2.x + 30.f , pos.y + 50.0f + espacio), IM_COL32(255, 255, 0, 255));
+		}
+		espacio = espacio + 53;
+		ImGui::Spacing();ImGui::Spacing();ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	}
+	espacio = 0;
+	delta = generarTiempoLLegada(1);
 	if (reloj<tiempoMax)
 	{	
 		Sleep(1000);
+		
 		menor = TLL;
-		for (i = 0; i < nServicio; i++) {
-			delta = seleccionarMenor(TS[i][0],TS[i][1],menor);//seleccionar el menor de 3 numeros
-			menor = delta;
-
-		}
-		delta = 10;
 		reloj = reloj + delta;
 		TET = TET + cola * delta;
-		
-		//Pendiente formula tiempo de espera total
+
+		for (i = 0; i < nServicio; i++) {
+			TS[i][1] = TS[i][1] - delta;
+			if (TS[i][1] <= 0) {
+				estaciones[i][1] = 0;
+
+
+			}
+		}
 
 		//Revisar el tiempo de llegada
 		TLL = TLL - delta;
@@ -119,31 +165,52 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 					TClientes++;
 					cola++;
 					atendido = true;
+					
+					
 				}
 				else {
-					printf("estacion: %i estado: %i\n", i, estaciones[i][1]);
-					if (estaciones[i][1] == 0) 
-					{
-						
-						estaciones[i][1] = 1;
-						TS[i][1] = generarTiempoLLamada(1) ;
-
-						llamadasCont++;
-						printf("atencion: %i\n", i);
-						atendido = true;
-						if (estaciones[i][0] == 1) {
-							TS[i][0] = TS[i][0] + TS[i][1];
-							TCELL = TCELL + TS[i][1]; 
-							CELL++;
+					for (i = 0; i < nServicio; i++) {
+						if (estaciones[i][0] == 0 ) {
+							libre = true;
 						}
-						
 					}
+					if (libre == true) {
+						if (estaciones[i][1] == 0 && estaciones[i][0] == 0)
+						{
+
+							estaciones[i][1] = 1;
+							TS[i][1] = generarTiempoLLamada(1);
+
+							llamadasCont++;
+							atendido = true;
+						}
+					}
+					else {
+						if (estaciones[i][1] == 0)
+						{
+
+							estaciones[i][1] = 1;
+							TS[i][1] = generarTiempoLLamada(1);
+
+							llamadasCont++;
+							atendido = true;
+
+
+							if (estaciones[i][0] == 1) {
+								TS[i][0] = TS[i][0] + TS[i][1];
+								TCELL = TCELL + TS[i][1];
+								CELL++;
+							}
+
+						}
+					}
+					
 				}
 				i++;
 			}
-			printf("atendido\n");
 			if (atendido == false) {
 				llamadasP++;
+				
 			}
 			TLL = generarTiempoLLegada(P);//obtener un tiempo de llegada
 			
@@ -155,6 +222,8 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 			TS[i][1] = TS[i][1] - delta;
 			if (TS[i][1] <= 0) {
 				estaciones[i][1] = 0;
+				
+				
 			}
 		}
 		
@@ -166,13 +235,15 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 				if (TS[i][0] == 0) {
 					estaciones[i][0] = 0;
 					atendidos++;
+					
+					
 				}
 				else {
 					TO = TO - TS[i][0];
 					TS[i][0] = 0;
 				}
 				if (cola > 0) {
-					estaciones[i][0] = 0;
+					estaciones[i][0] = 1;
 					cola = cola -1;
 					TS[i][0] = generarTiempoServicio(2);
 				}
@@ -182,16 +253,9 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 
 		
 		atendido = false;
-		printf("\n");
+		
 	}
-	//Impresion de estado
-	Tllamadas = llamadasCont + llamadasP;
-	ImGui::Text("Reloj: %i", reloj);
-	ImGui::Text("Cola: %i \n", cola);
-	ImGui::Text("Clientes: %i \n", TClientes);
-	ImGui::Text("Llamadas: %i \n", Tllamadas);
-	ImGui::Text("Llamadas Perdidas: %i \n", llamadasP);
-	ImGui::Text("Llamadas Contestadas: %i \n", llamadasCont);
+	
 	//Calculo de promedios
 	//Impresiones
 	ImGui::End();
@@ -210,7 +274,7 @@ static int generarTiempoLLamada(float A) {
 }
 static int generarTiempoServicio(float A) {
 	static int tiempo = 0;
-	tiempo = 20;
+	tiempo = 10;
 	return tiempo;
 }
 static int seleccionarMenor(int n1, int n2, int n3) {
@@ -221,7 +285,7 @@ static int seleccionarMenor(int n1, int n2, int n3) {
 }
 static int generarTipo() {
 	static int tipo;
-	tipo = 1;
+	tipo = 0;
 	return tipo;
 }
 
