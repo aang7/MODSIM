@@ -71,7 +71,7 @@ int main(int, char**)
         if (show_simulacion)
         {
             ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-            ImGui::Simulacion(&show_simulacion,tiempoMax,nFilas,nServicio);
+            ImGui::Simulacion(&show_simulacion);
         }
 
         // Rendering

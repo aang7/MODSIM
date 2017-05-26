@@ -25,6 +25,7 @@
 
 #include<iostream>
 #include <random>
+#include "sample.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
@@ -140,52 +141,46 @@ struct ExampleAppLog
     }
 };
 
+int tiempo_limite = 70;
+static Object sys(tiempo_limite);
 
+void ImGui::Simulacion(bool* p_open) {
 
-void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
-        	
-
+        
 	static ExampleAppLog log;
-
+	
+	
 	ImGui::Begin("Simulacion", p_open);
+        int TLL = randomInteger();
+	int TS = randomInteger();
 	
-	
-	if(ImGui::Button("Generate times"))
+	sys.setDelta(std::min(TS, TLL)); 
+	sys.incrementClock(); //reloj
+
+	if (!sys.timeFinish())
 	  {
-	    geometrica();
-	    log.AddLog("\n\n \tNew Generation\n\n");
-	    for(int i = 0; i < LEN; i++)
-	      log.AddLog("%d\n", times[i]);
+		sys.updateTet(); //actualiza tiempo espera total
+		static int actual_event = sys.getEvent();
+		if (actual_event == Object::CLLEGO)//entonces un cliente llego
+		  {
+		    
+		  }
+		else if (actual_event == Object::CATTEND) //entonces hay que atender al cliente
+		  {
+		    
+		  }
+	    
 	  }
-
-
-	 log.Draw("Numbers for time", p_open);
-
+	
 	ImGui::End();
 }
 
+static void setup()
+{
+  
+  //Aqui setearemos valores iniciales
+}
 
-static int generarTiempoLLegada(float P) {
-	static int tiempo = 0;
-	tiempo = 10;
-	return tiempo;
-}
-static int generarTiempoLLamada(float A) {
-	static int tiempo = 0;
-	tiempo = 20;
-	return tiempo;
-}
-static int seleccionarMenor(int n1, int n2, int n3) {
-	static int mayor;
-
-	mayor = 10;
-	return mayor;
-}
-static int generarTipo() {
-	static int tipo;
-	tipo = 1;
-	return tipo;
-}
 
 
 static int randomInteger()
