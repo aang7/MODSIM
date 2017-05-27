@@ -26,6 +26,7 @@
 #include<iostream>
 #include <random>
 #include "sample.h"
+#include<unistd.h>
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
@@ -74,7 +75,7 @@ static float getRandomNumber();
 static int randomInteger();
 static void geometrica();
 
-enum { MIN = 0, MAX = 1000 };
+enum { MIN = 1, MAX = 30 };
 
 using namespace std;
 
@@ -141,7 +142,11 @@ struct ExampleAppLog
     }
 };
 
-int tiempo_limite = 70;
+static const int tiempo_limite = 1000;
+ int TLL = 7;
+ int TS = 20;
+	
+
 static Object sys(tiempo_limite);
 
 void ImGui::Simulacion(bool* p_open) {
@@ -149,36 +154,88 @@ void ImGui::Simulacion(bool* p_open) {
         
 	static ExampleAppLog log;
 	
-	
 	ImGui::Begin("Simulacion", p_open);
-        int TLL = randomInteger();
-	int TS = randomInteger();
-	
-	sys.setDelta(std::min(TS, TLL)); 
-	sys.incrementClock(); //reloj
 
-	if (!sys.timeFinish())
+	sleep(0.5);
+        
+	if (sys.istimeRunning())
 	  {
+	    sys.setDelta(std::min(sys.getServiceTime(), sys.getComingTime())); 
+	    sys.incrementClock(); //reloj
+	    
 		sys.updateTet(); //actualiza tiempo espera total
-		static int actual_event = sys.getEvent();
+	        int actual_event = sys.getEvent();
+		cout << "evento_actual: " << actual_event << endl;
 		if (actual_event == Object::CLLEGO)//entonces un cliente llego
 		  {
-		    
+		    sys.incrementClientesLL();
+		    sys.incrementCola();
+		    /* generar tiempo de llegada aqui */
+		    TLL = randomInteger();
+		    sys.setComingTime(TLL);
+		    cout << "TLL: " << sys.getComingTime() << endl;
+		    		    		    
 		  }
+		
 		else if (actual_event == Object::CATTEND) //entonces hay que atender al cliente
 		  {
-		    
+		    int service_time = sys.getServiceTime(); //TS
+		    if (service_time == 0)
+		      {
+				if (sys.getCola() > 0)
+				  {
+				    sys.decrementCola();
+				    /* Generar nuevo tiempo de servicio */
+				    TS = randomInteger();
+				    sys.setServiceTime(TS);
+				    cout << "TS: " << sys.getServiceTime() << endl;
+				  }
+				else
+				  {
+				    /* Mostrar datos */
+				    log.AddLog("Reloj: %d\tCola: %d\tDelta: %d\tNCLL: %d\tNCA: %d\n",
+					       sys.getClockTime(),
+					       sys.getCola(),
+					       sys.getDelta(),
+					       sys.getClientesNumber(),
+					       sys.getClientesAtendidos());
+				  }
+		      }
+		    else if (service_time > 0 )
+		      {
+				    /* Mostrar datos */
+				    log.AddLog("Reloj: %d\tCola: %d\tDelta: %d\tNCLL: %d\tNCA: %d\n",
+					       sys.getClockTime(),
+					       sys.getCola(),
+					       sys.getDelta(),
+					       sys.getClientesNumber(),
+					       sys.getClientesAtendidos());
+			
+		      }
+		    else if (service_time < 0)
+		      {
+				sys.updateOcioTime();
+		      }
 		  }
 	    
-	  }
+	  } else //print endogen values
+		{
+		  static int once = 0;
+		  
+		  if(!once)
+		    {
+		      log.AddLog("\tEND OF SIMULATION\n");
+		      log.AddLog("TEM: %f\nTO: %d\nTET: %d\n",
+				 (float)(sys.getTET()/tiempo_limite),
+				 sys.getOcioTime(), sys.getTET());
+		      log.AddLog("CLA: %d", sys.getClientesAtendidos());
+		    }
+		  once++;
+		}
+
+	log.Draw("Simulation test", p_open);
 	
 	ImGui::End();
-}
-
-static void setup()
-{
-  
-  //Aqui setearemos valores iniciales
 }
 
 

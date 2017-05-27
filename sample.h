@@ -7,9 +7,9 @@ class Object{
 public :
   
   int reloj = 0;
-  int cola;
-  int TLL; //tiempo entre llegadas
-  int TS; //tiempo servicio
+  int cola = 0;
+  int TLL = 7; //tiempo entre llegadas HARDOCODED 
+  int TS =  20; //tiempo servicio    HARDCODED
   int TET = 0; //tiempo espera total
   int t_limite; //tiempo limite de simulación
   int t_ocio;
@@ -66,18 +66,43 @@ public :
     return this->TS;
   }
 
+  int getClientesNumber() {
+    return this->nclientes_LL;
+  }
+
+  int getClientesAtendidos() {
+    return this->nclientes_A;
+  }
+
+  int getCola() {
+    return this->cola;
+  }
+
+  
+  void incrementClientesLL() {
+    this->nclientes_LL++;
+  }
+
+  void incrementCola() {
+    this->cola++; 
+  }
+
+  void decrementCola() {
+    this->cola--;
+  }
+  
+
+
   int getEvent() {
 
-    int evento;
-    if ((TLL - delta) == 0) {
+    static int evento;
+    if ((TLL -= delta) == 0)
 	evento = CLLEGO;
-	TLL -= delta;
-    }
+
     
-    else if((TS - delta) == 0) {
+    else if((TS -= delta) == 0) 
 	evento = CATTEND;
-	TS -= delta;
-    }
+    
       
       return evento;
   }
@@ -90,13 +115,22 @@ public :
     return this->reloj;
   }
 
-  bool timeFinish() {
+  bool istimeRunning() {
     
     if (reloj <= t_limite)
       return true;
     else
       return false;
     
+  }
+
+  void updateOcioTime() {
+    t_ocio -= TS;
+    TS = 0;
+  }
+
+  int getOcioTime() {
+    return this->t_ocio;
   }
   
 };
