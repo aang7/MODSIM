@@ -120,6 +120,7 @@ namespace ImGui
     
 
 	IMGUI_API void          Simulacion(bool* p_open = NULL,int tiempoMax = 0, int nFilas = 0, int nServicio=0);
+	IMGUI_API void          Resultados();
 
     IMGUI_API void          ShowMetricsWindow(bool* p_open = NULL);     // metrics window for debugging ImGui (browse draw commands, individual vertices, window list, etc.)
 

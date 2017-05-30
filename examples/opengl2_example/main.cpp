@@ -52,18 +52,18 @@ int main(int, char**)
     {
         glfwPollEvents();
         ImGui_ImplGlfw_NewFrame();
-		if (!show_simulacion) {
+		
 			// 1. Show a simple window
 			// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
 			{
 				static float f = 0.0f;
-				ImGui::Text("Simulacion! wowowow");
+				ImGui::Text("Simulacion");
 				ImGui::SliderInt("Numero de estaciones de servicio", &nServicio, 1, 10);
 				ImGui::SliderInt("Tiempo Maximo", &tiempoMax, 1, 480);
 				if (ImGui::Button("Iniciar simulacion")) show_simulacion ^= 1;
 
 			}
-		}
+		
         // 2. Show another simple window, this time using an explicit Begin/End pair
         
 
