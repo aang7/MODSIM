@@ -72,7 +72,7 @@ int main(int, char**)
         // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
         if (show_simulacion)
         {
-            ImGui::SetNextWindowPos(ImVec2(150, 150), ImGuiSetCond_FirstUseEver);
+            ImGui::SetNextWindowPos(ImVec2(120, 150), ImGuiSetCond_FirstUseEver);
             ImGui::Simulacion(&show_simulacion,tiempoMax,nFilas,nServicio);
         }
 
