@@ -55,14 +55,16 @@ int main(int, char**)
 		
 			// 1. Show a simple window
 			// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-			{
+		ImGui::SetNextWindowSize(ImVec2(800, 130));
+		ImGui::Begin("Opciones");
+		ImGui::SetWindowPos(ImVec2(200, 10));
 				static float f = 0.0f;
 				ImGui::Text("Simulacion");
 				ImGui::SliderInt("Numero de estaciones de servicio", &nServicio, 1, 10);
 				ImGui::SliderInt("Tiempo Maximo", &tiempoMax, 1, 480);
 				if (ImGui::Button("Iniciar simulacion")) show_simulacion ^= 1;
 
-			}
+			
 		
         // 2. Show another simple window, this time using an explicit Begin/End pair
         
@@ -70,10 +72,11 @@ int main(int, char**)
         // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
         if (show_simulacion)
         {
-            ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+            ImGui::SetNextWindowPos(ImVec2(150, 150), ImGuiSetCond_FirstUseEver);
             ImGui::Simulacion(&show_simulacion,tiempoMax,nFilas,nServicio);
         }
 
+		ImGui::End();
         // Rendering
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);

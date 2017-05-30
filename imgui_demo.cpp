@@ -324,6 +324,7 @@ static void mostrar() {
 	
 	ImGui::SetNextWindowSize(ImVec2(600, 400));
 	ImGui::Begin("Resultados");
+	ImGui::SetWindowPos(ImVec2(700, 150));
 	static int mayor = 0, menor = 0,cAtendidos = 0;
 	static float valMay = 0.0f, valMen = 1000.0f;
 	static float por = 0.0f, porciento=0.0f;
