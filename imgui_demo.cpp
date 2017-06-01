@@ -101,11 +101,12 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 		return;
 	}
 
+	static string TLLAR = "" , TLLR = "", TSR = "";
 	
 	//delta = generarTiempoLLegada();
 	if (reloj<tiempoMax)
 	{	
-		estado = "";
+		estado = " ";
 		Sleep(4000);
 		
 		menor = TLL;
@@ -141,8 +142,6 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 					for (int j = 0; j < nServicio; j++) {
 						if (estaciones[j][0] == 0 ) {
 							libre = true;
-							printf("%i,", estaciones[j][0]);
-							printf("%i \n", estaciones[j][1]);
 						}
 						
 					}
@@ -153,7 +152,7 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 							estado = estado + "Se atendio la llamada en la estacion: " + to_string(i + 1) + " \n";
 							estaciones[i][1] = 1;
 							TS[i][1] = generarTiempoLLamada(1) + delta;
-
+							TLLAR = TLLAR + to_string(TS[i][1] - delta) + ", ";
 							llamadasCont++;
 							atendido = true;
 						}
@@ -167,6 +166,7 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 							estado = estado + "Se atendio la llamada en la estacion: " + to_string(i + 1) + " y se pone en espera al cliente\n";
 							llamadasCont++;
 							atendido = true;
+							TLLAR = TLLAR + to_string(TS[i][1] - delta) + ", ";
 
 
 							if (estaciones[i][0] == 1) {
@@ -188,6 +188,7 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 				
 			}
 			TLL = generarTiempoLLegada();//obtener un tiempo de llegada
+			
 			
 		}
 
@@ -225,6 +226,7 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 					estaciones[i][0] = 1;
 					cola = cola -1;
 					TS[i][0] = generarTiempoServicio(2);
+					TSR = TSR + to_string(TS[i][0]) + ", ";
 					estado = estado + "Ingreso cliente a la estacion: " + to_string(i+1) + " \n";
 				}
 			}
@@ -232,11 +234,23 @@ void ImGui::Simulacion(bool* p_open, int tiempoMax, int nFilas, int nServicio) {
 
 		
 		atendido = false;
+		TLLR = TLLR  + to_string(TLL) + ", ";
 		
 	}
 else {
 	reloj = maximo;
+	static int veces = 0;
+	if (veces == 0) {
+		veces = 1;
+		printf("Tiempos llegadas: %s \n", TLLR.c_str());
+		printf("Tiempos llamadas: %s \n", TLLAR.c_str());
+		printf("Tiempos servicio: %s \n", TSR.c_str());
+		printf("N llamadas: %i \n", Tllamadas);
+		printf("N clientes: %i \n", TClientes);
+	}
+	
 }
+	
 	
 	//Calculo de promedios
 	//Impresiones
@@ -460,7 +474,7 @@ static int generarTiempoLLegada() {
 	double r;
 	int x;
 
-	p = 0.07203;
+	p = 0.0720;
 
 	x = 0;
 	suma = 0;
@@ -540,10 +554,10 @@ static int generarTipo() {
 	static float r;
 	r = getRandomNumber();
 	if (r> 0.64) {
-		tipo = 1;
+		tipo = 0;
 	}
 	else {
-		tipo = 0;
+		tipo = 1;
 	}
 	return tipo;
 }

@@ -34,13 +34,13 @@ int main(int, char**)
     //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
     //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
-    ImGuiIO& io = ImGui::GetIO();
+    /*ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontDefault();
     ImFontConfig config;
     config.MergeMode = true;
     config.PixelSnapH = true;
-    const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-    io.Fonts->AddFontFromFileTTF("../../extra_fonts/fontawesome-webfont.ttf", 18.0f, &config, icon_ranges);
+    const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };*/
+    //io.Fonts->AddFontFromFileTTF("../../extra_fonts/fontawesome-webfont.ttf", 18.0f, &config, icon_ranges);
 
 
     bool show_simulacion= false;   
